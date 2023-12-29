@@ -122,6 +122,12 @@ export function CaptionsView({ id }: { id: string }) {
   const [searchQuery, setSearchQuery] = useState("");
   const subtitleList = useSubtitleList(captionList, searchQuery);
 
+  const deduplicatedSubtitleList = subtitleList.reduce((acc, curr) => {
+    const exists = acc.find((s) => s.language === curr.language);
+    if (!exists) acc.push(curr);
+    return acc;
+  }, [] as typeof subtitleList);
+
   const [downloadReq, startDownload] = useAsyncFn(
     async (language: string) => {
       setCurrentlyDownloading(language);
@@ -130,7 +136,7 @@ export function CaptionsView({ id }: { id: string }) {
     [selectLanguage, setCurrentlyDownloading],
   );
 
-  const content = subtitleList.map((v, i) => {
+  const content = deduplicatedSubtitleList.map((v, i) => {
     return (
       <CaptionOption
         // key must use index to prevent url collisions
